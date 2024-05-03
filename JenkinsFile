@@ -12,6 +12,11 @@ pipeline{
                     body: " Build was successfull"
                 }
             }
+     stages{
+        stage("Complete"){
+            steps{
+                echo "Completed."
+            }
         }
     }
 }
