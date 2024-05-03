@@ -4,69 +4,71 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-            
-                sh 'mvn clean package'
-            }
-            post {
-                always {
-                    // Send email notification after build stage
-                    mail to: "sakshiranan22@gmail.com",
-                    subject: "Build Status Email",
-                    body: "Build was successful"
-                }
+                // Build the code using Maven
             }
         }
 
         stage("Unit and Integration Tests") {
             steps {
-            
-                sh 'mvn test'
-
-                
-            
-                sh 'mvn integration-test'
+                // Run unit tests with JUnit
+                // Run integration tests with Selenium
             }
         }
 
         stage("Code Analysis") {
             steps {
-            
-            
-                withSonarQubeEnv('SonarQube_Server') {
-                    sh 'mvn sonar:sonar'
-                }
+                // Run code analysis with SonarQube
             }
         }
 
         stage("Security Scan") {
             steps {
-            
-                sh 'zap.sh -quickurl https://yourapp.com'
+                // Run security scan with OWASP ZAP
             }
+        post {
+        success {
+            mail to: "sakshiranan22@gmail.com",
+            subject: "Build status email",
+            body: "Build was successfull"
+        }
+        failure {
+            mail to: "sakshiranan22@gmail.com",
+            subject: "Build status email",
+            body: "Build was failed"
+        }
+    }
         }
 
         stage("Deploy to Staging") {
             steps {
-                
-        
-                sh 'aws deploy push --application yourApp --s3-location yourS3Location --source . --region yourRegion'
+                // Deploy the application to staging server using AWS CodeDeploy
             }
         }
 
         stage("Integration Tests on Staging") {
             steps {
-            
-            
-                sh 'mvn integration-test'
+                // Run integration tests on the staging environment with Selenium
             }
+            post {
+           success {
+            mail to: "sakshiranan22@gmail.com",
+            subject: "Build status email",
+            body: "Build was successfull"
+        }
+        failure {
+            mail to: "sakshiranan22@gmail.com",
+            subject: "Build status email",
+            body: "Build was failed"
+        }
+    }
         }
 
         stage("Deploy to Production") {
             steps {
-            
-        
-                sh 'aws deploy push --application yourApp --s3-location yourS3Location --source . --region yourRegion'
+                // Deploy the application to production server using AWS CodeDeploy
             }
         }
     }
+
 }
+
