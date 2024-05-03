@@ -1,31 +1,71 @@
-pipeline{
+pipeline {
     agent any
-    stages{
-        stage("Build"){
-            steps{
-                echo "Building..."
+
+    stages {
+        stage("Build") {
+            steps {
+            
+                sh 'mvn clean package'
             }
-            post{
-                always{
+            post {
+                always {
+                    // Send email notification after build stage
                     mail to: "sakshiranan22@gmail.com",
                     subject: "Build Status Email",
-                    body: " Build was successfull"
+                    body: "Build was successful"
                 }
             }
-       }
-       stage("Test"){
-            steps{
-                echo "Testing ..."
+        }
+
+        stage("Unit and Integration Tests") {
+            steps {
+            
+                sh 'mvn test'
+
+                
+            
+                sh 'mvn integration-test'
             }
         }
-        stage("Deploy"){
-            steps{
-                echo "Deploying ..."
-              }
+
+        stage("Code Analysis") {
+            steps {
+            
+            
+                withSonarQubeEnv('SonarQube_Server') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
         }
-        stage("Complete"){
-            steps{
-                echo "Completed."
+
+        stage("Security Scan") {
+            steps {
+            
+                sh 'zap.sh -quickurl https://yourapp.com'
+            }
+        }
+
+        stage("Deploy to Staging") {
+            steps {
+                
+        
+                sh 'aws deploy push --application yourApp --s3-location yourS3Location --source . --region yourRegion'
+            }
+        }
+
+        stage("Integration Tests on Staging") {
+            steps {
+            
+            
+                sh 'mvn integration-test'
+            }
+        }
+
+        stage("Deploy to Production") {
+            steps {
+            
+        
+                sh 'aws deploy push --application yourApp --s3-location yourS3Location --source . --region yourRegion'
             }
         }
     }
